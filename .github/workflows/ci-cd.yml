@@ -117,14 +117,14 @@ jobs:
         with:
           context: .
           push: false
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha | slice(0, 7) }}
           labels: ${{ steps.meta.outputs.labels }}
           load: true
       
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.15.0
         with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha | slice(0, 7) }}
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
@@ -161,7 +161,7 @@ jobs:
       
       - name: Update Kubernetes deployment file
         env:
-          IMAGE_TAG: sha-${{ github.sha }}
+          IMAGE_TAG: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha | slice(0, 7) }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           REGISTRY: ghcr.io
         run: |
